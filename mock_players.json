@@ -1,0 +1,83 @@
+[
+  {
+    "name": "Duke",
+    "id": "",
+    "role": "virgin",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Bardic",
+    "id": "",
+    "role": "mayor",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Edd",
+    "id": "",
+    "role": "slayer",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": true,
+    "pronouns": ""
+  },
+  {
+    "name": "Chris",
+    "id": "",
+    "role": "butler",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Pat",
+    "id": "",
+    "role": "drunk",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Julz",
+    "id": "",
+    "role": "scarletwoman",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Laurent",
+    "id": "",
+    "role": "poisoner",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Emerald",
+    "id": "",
+    "role": "spy",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  },
+  {
+    "name": "Madeleine",
+    "id": "",
+    "role": "saint",
+    "reminders": [],
+    "isVoteless": false,
+    "isDead": false,
+    "pronouns": ""
+  }
+]
