@@ -4,10 +4,14 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import db from "./db.js";
 import {generateJWT} from "./authentication.js";
+import publish from "./publish.js";
+import fs from "fs";
 
 dotenv.config();
 
 const app = express();
+
+const TWITCH_PUBSUB_URL = "https://api.twitch.tv/extensions/message/";
 
 app.use(cors());
 
@@ -40,12 +44,34 @@ app.get("/grimoire/", (req, res) => {
 app.post("/grimoire/:channelId", (req, res) => {
     const {players} = req.body;
 
-    db.set(req.params.channelId, players);
+    const {channelId} = req.params;
 
-    const token = generateJWT(req.params.channelId);
-    
+    db.set(channelId, players);
 
-    res.status(200).send("success");
+    const token = generateJWT(channelId);
+
+    const fakeGrim = {
+        players: [
+            {name: "Buffy", role: "slayer"},
+            {name: "Aisha", role: "imp"},
+            {name: "Sherlock", role: "investigator"},
+            {name: "Natasha", role: "spy"},
+            {name: "Watson", role: "soldier"}
+        ],
+        edition: {}
+    };
+
+    const message = JSON.stringify({type: "grimoire", grimoire: fakeGrim});
+    // const message = JSON.stringify({type: "test", content: "foo"});
+
+    publish(message, token, channelId).then(() => {
+        res.status(200).send("success");
+    }).catch(error => {
+        // fs.writeFileSync("./log.txt", error.message);
+        console.log("error publishing message", error);
+        res.status(400).send("failure to publish message");
+    });
+  
 });
 
 app.listen(port, () => {
