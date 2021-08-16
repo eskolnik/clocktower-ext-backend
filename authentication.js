@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 
 function generateJWT(channelId) {
-    // time until JWT expiration in milliseconds
-    const expirationBuffer = 120 * 1000;
+    // time until JWT expiration in milliseconds - 1 hour
+    const expirationBuffer = 60 * 60 * 1000;
     const expiration = Date.now() + expirationBuffer;
 
     const payload = {
@@ -17,7 +17,10 @@ function generateJWT(channelId) {
 
     const secret = Buffer.from(process.env.SECRET, "base64");
 
-    return jwt.sign(payload, secret);
+    return {
+        token: jwt.sign(payload, secret),
+        expiration
+    };
 }
 
 export {generateJWT};

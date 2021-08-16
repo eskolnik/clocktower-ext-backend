@@ -6,6 +6,7 @@ import db from "./db.js";
 import {generateJWT} from "./authentication.js";
 import publish from "./publish.js";
 import fs from "fs";
+import { sign } from "crypto";
 
 dotenv.config();
 
@@ -21,6 +22,20 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 
 const port = process.env.PORT;
 
+app.get("/grimoire/:channelId", (req, res) => {
+    
+    
+    const grimKey = req.params.channelId+"_grim";
+    const grimoire = db.get(grimKey);
+
+    if(!grimoire) {
+        res.status(404).send("Resource Not Found");
+    }
+
+    // const players = db.get(req.params.channelId);
+    res.send(JSON.stringify(grimoire));
+});
+
 app.get("/grimoire/", (req, res) => {
     let decoded;
     
@@ -34,11 +49,19 @@ app.get("/grimoire/", (req, res) => {
         decoded = jwt.verify(token,  secret);
     } catch (err) {
         console.log(err);
+        res.status(404).send("Resource Not Found");
     }
-    // console.log(decoded); // bar
+    console.log(decoded);
+    
+    const grimKey = decoded.channel_id+"_grim";
+    const grimoire = db.get(grimKey);
+
+    if(!grimoire) {
+        res.status(404).send("Resource Not Found");
+    }
 
     // const players = db.get(req.params.channelId);
-    res.send(JSON.stringify({players: 8}));
+    res.send(JSON.stringify(grimoire));
 });
 
 app.post("/grimoire/:channelId", (req, res) => {
@@ -46,30 +69,57 @@ app.post("/grimoire/:channelId", (req, res) => {
 
     const {channelId} = req.params;
 
-    db.set(channelId, players);
-
-    const token = generateJWT(channelId);
-
-    const fakeGrim = {
-        players: [
-            {name: "Buffy", role: "slayer"},
-            {name: "Aisha", role: "imp"},
-            {name: "Sherlock", role: "investigator"},
-            {name: "Natasha", role: "spy"},
-            {name: "Watson", role: "soldier"}
-        ],
-        edition: {}
+    const grimoire = {
+        players,
+        edition: {},
+        lastUpdated: Date.now()
     };
 
-    const message = JSON.stringify({type: "grimoire", grimoire: fakeGrim});
-    // const message = JSON.stringify({type: "test", content: "foo"});
+    const grimKey = channelId + "_grim";
+    db.set(grimKey, grimoire);
 
-    publish(message, token, channelId).then(() => {
+    const jwtKey = channelId + "_jwt";
+    let signedToken = db.get(jwtKey);
+    const currentDate = Date.now();
+    if(!signedToken || currentDate > signedToken.expiration) {
+        signedToken = generateJWT(channelId);
+        db.set(jwtKey, signedToken);
+    }
+
+
+    // const fakeGrim = {
+    //     players: [
+    //         {role: "washerwoman"},
+    //         {role: "librarian"},
+    //         {role: "investigator"},
+    //         {role: "chef"},
+    //         {role: "empath"},
+    //         {role: "fortuneteller"},
+    //         {role: "undertaker"},
+    //         {role: "monk"},
+    //         {role: "ravenkeeper"},
+    //         {role: "virgin"},
+    //         {role: "slayer"},
+    //         {role: "soldier"},
+    //         {role: "mayor"},
+    //         {role: "butler"},
+    //         {role: "drunk"},
+    //         {role: "recluse"},
+    //         {role: "saint"},
+    //     ].slice(0,players),
+    //     edition: {}
+    // };
+
+    const message = JSON.stringify({type: "grimoire", grimoire});
+    // const message = JSON.stringify({type: "test", content: "foo"});
+    console.log(message);
+
+    publish(message, signedToken.token, channelId).then(() => {
         res.status(200).send("success");
     }).catch(error => {
         // fs.writeFileSync("./log.txt", error.message);
         console.log("error publishing message", error);
-        res.status(400).send("failure to publish message");
+        res.status(400).send("failed to publish message");
     });
   
 });
