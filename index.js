@@ -5,8 +5,6 @@ import jwt from "jsonwebtoken";
 import db from "./db.js";
 import {generateJWT} from "./authentication.js";
 import publish from "./publish.js";
-import fs from "fs";
-import { sign } from "crypto";
 
 dotenv.config();
 
@@ -50,6 +48,7 @@ app.get("/grimoire/", (req, res) => {
     } catch (err) {
         console.log(err);
         res.status(404).send("Resource Not Found");
+        return;
     }
     console.log(decoded);
     

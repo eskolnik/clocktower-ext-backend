@@ -22,9 +22,7 @@ function publish(message, token, channelId) {
         }
     };
     
-    return axios.post(url, body, options).then(response => {
-        // console.log("success", response);
-    });
+    return axios.post(url, body, options);
 }
 
 export default publish;
