@@ -1,14 +1,14 @@
 // In memory cache, for JWTs only
 
-let cache = {};
+const cache = {};
 
-function set(key, value) {
+function set (key, value) {
     cache[key] = value;
 }
 
-function get(key) {
+function get (key) {
     return cache[key];
 }
 
-export default {get, set};
-export {get, set};
+export default { get, set };
+export { get, set };

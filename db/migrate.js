@@ -1,4 +1,4 @@
-import migrations from "./migrations/index.js";
+import migrations from "./migrations/migrations.js";
 
 function migrate(database) {
     migrations.forEach(migration => {
