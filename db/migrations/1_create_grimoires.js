@@ -7,7 +7,7 @@ const up = `CREATE TABLE IF NOT EXISTS ${tableName} (
     edition     STRING,
     session     STRING,
     timestamp   INTEGER NOT NULL,
-    version     INTEGET NOT NULL
+    version     INTEGER NOT NULL
 );`;
 
 

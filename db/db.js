@@ -13,13 +13,10 @@ function migrate() {
     _migrate(db);
 }
 
-// function set(key, value) {
-//     db[key] = value;
-// }
 
-// function get(key) {
-//     return db[key];
-// }
+function getDb() {
+    return db;
+}
 
-export default { initializeDb, migrate};
-export { initializeDb, migrate};
+export default { initializeDb, migrate, getDb};
+export { initializeDb, migrate, getDb};

@@ -1,16 +1,20 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import db from "./db/db.js";
+import cache from "./db/cache.js";
 import {generateJWT} from "./authentication.js";
 import publish from "./publish.js";
+import Grimoire from "./models/Grimoire.js";
 
 
 const app = express();
 
-const TWITCH_PUBSUB_URL = "https://api.twitch.tv/extensions/message/";
+const VERSION = 1;
+
 
 app.use(cors());
 
@@ -27,10 +31,10 @@ function initialize() {
 }
 
 app.get("/grimoire/:channelId", (req, res) => {
-    
-    
-    const grimKey = req.params.channelId+"_grim";
-    const grimoire = db.get(grimKey);
+    const {channelId} = req.params;
+
+    const grimoire = Grimoire.loadAllByChannelId(channelId)[0];
+
 
     if(!grimoire) {
         res.status(404).send("Resource Not Found");
@@ -70,52 +74,24 @@ app.get("/grimoire/", (req, res) => {
 });
 
 app.post("/grimoire/:channelId", (req, res) => {
-    const {players} = req.body;
+    const {players, session} = req.body;
 
     const {channelId} = req.params;
 
-    const grimoire = {
-        players,
-        edition: {},
-        lastUpdated: Date.now()
-    };
+    const grimoire = Grimoire.build(channelId, JSON.stringify(players), JSON.stringify({}), session, VERSION);
 
-    const grimKey = channelId + "_grim";
-    db.set(grimKey, grimoire);
+    grimoire.save();
+
 
     const jwtKey = channelId + "_jwt";
-    let signedToken = db.get(jwtKey);
+    let signedToken = cache.get(jwtKey);
     const currentDate = Date.now();
     if(!signedToken || currentDate > signedToken.expiration) {
         signedToken = generateJWT(channelId);
-        db.set(jwtKey, signedToken);
+        cache.set(jwtKey, signedToken);
     }
 
-
-    // const fakeGrim = {
-    //     players: [
-    //         {role: "washerwoman"},
-    //         {role: "librarian"},
-    //         {role: "investigator"},
-    //         {role: "chef"},
-    //         {role: "empath"},
-    //         {role: "fortuneteller"},
-    //         {role: "undertaker"},
-    //         {role: "monk"},
-    //         {role: "ravenkeeper"},
-    //         {role: "virgin"},
-    //         {role: "slayer"},
-    //         {role: "soldier"},
-    //         {role: "mayor"},
-    //         {role: "butler"},
-    //         {role: "drunk"},
-    //         {role: "recluse"},
-    //         {role: "saint"},
-    //     ].slice(0,players),
-    //     edition: {}
-    // };
-
-    const message = JSON.stringify({type: "grimoire", grimoire});
+    const message = JSON.stringify({type: "grimoire", grimoire: grimoire.createMessageContent()});
     // const message = JSON.stringify({type: "test", content: "foo"});
     console.log(message);
 
