@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
+    "better-sqlite3": "^7.4.3",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",

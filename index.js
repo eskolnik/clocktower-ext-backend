@@ -1,12 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import db from "./db.js";
+import db from "./db/db.js";
 import {generateJWT} from "./authentication.js";
 import publish from "./publish.js";
 
-dotenv.config();
 
 const app = express();
 
@@ -19,6 +19,12 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 
 
 const port = process.env.PORT;
+
+function initialize() {
+    console.log("initializing db...");
+    db.initializeDb(process.env.DB_PATH);
+    db.migrate();
+}
 
 app.get("/grimoire/:channelId", (req, res) => {
     
@@ -124,6 +130,7 @@ app.post("/grimoire/:channelId", (req, res) => {
 });
 
 app.listen(port, () => {
+    initialize();
     console.log(`Listening at http://localhost:${port}`);
 });
 
