@@ -39,7 +39,7 @@ class Grimoire {
 
     save() {
         const statement = getDb().prepare(`
-        INSERT OR REPLACE INTO ${tableName}
+        INSERT OR REPLACE INTO ${Grimoire.tableName}
         VALUES (:id, :channelId, :players, :edition, :session, :timestamp, :version);`);
 
         const result = statement.run({
@@ -57,16 +57,38 @@ class Grimoire {
         }
     }
 
+    static get tableName() {
+        return tableName;
+    }
+
     static fromDbData(data) {
         return new Grimoire(data.id, data.channel_id, data.players, data.edition, data.session, data.timestamp, data.version);
     }
 
     static loadAllByChannelId(channelId) {
         const statement = getDb().prepare(`
-            SELECT * FROM ${tableName}
+            SELECT * FROM ${Grimoire.tableName}
             WHERE channel_id=?`);
 
         return statement.all(channelId).map(this.fromDbData);
+    }
+
+    static loadMostRecentByChannelId(channelId) {
+        try {
+            const statement = getDb().prepare(`
+            SELECT * FROM ${Grimoire.tableName}
+            WHERE channel_id=?
+            ORDER BY timestamp DESC
+            LIMIT 1`);
+
+            const result =  statement.get(channelId);
+            if(!result) {
+                return null;
+            }
+            return(this.fromDbData(result));
+        } catch (err) {
+            return null;
+        }
     }
 
     /**

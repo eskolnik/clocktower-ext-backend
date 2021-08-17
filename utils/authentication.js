@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import cache from "../db/cache.js";
 
 function generateJWT(channelId) {
     // time until JWT expiration in milliseconds - 1 hour
@@ -23,4 +24,21 @@ function generateJWT(channelId) {
     };
 }
 
-export {generateJWT};
+// function getJWT(channelId) {
+//     cache.get();
+// }
+
+function verifyJWT(request) {
+    const secret = Buffer.from(process.env.SECRET, "base64");
+    const tokenArray = request.headers.authorization.split(" ");
+
+    if(tokenArray[0]!=="Bearer") {
+        throw new Error("Invalid Authorization");
+    }
+
+    const token = tokenArray[1];
+    return jwt.verify(token,  secret);
+}
+
+
+export {generateJWT, verifyJWT};
