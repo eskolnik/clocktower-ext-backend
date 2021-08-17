@@ -1,6 +1,8 @@
 node_modules/
 *.env
-yarn-error.log
 
-.db
-.sql
+*.sql
+*.db
+
+.vscode/
+yarn-error.log
