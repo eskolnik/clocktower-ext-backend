@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import db from './db/db.js';
-import cache from './db/cache.js';
 import { getJWT, verifyJWT } from './utils/authentication.js';
 import publish from './utils/publish.js';
 import Grimoire from './models/Grimoire.js';
@@ -86,7 +85,7 @@ app.get('/grimoire/', (req, res) => {
 // see if anyone is currently streaming that session,
 // and publish updates to each of them
 app.post('/grimoire/:secretKey', (req, res) => {
-    const { session, playerId, isHost, players } = req.body;
+    const { session, playerId, isHost, players, bluffs, edition } = req.body;
     const { secretKey } = req.params;
     console.log(req.body);
 
@@ -101,7 +100,7 @@ app.post('/grimoire/:secretKey', (req, res) => {
     const caster = Broadcaster.loadBySecretKey(secretKey);
     const channelId = caster.channelId;
 
-    const grimoire = Grimoire.create(session, playerId, isHost, players, {}, {}, VERSION);
+    const grimoire = Grimoire.create(session, playerId, isHost, players, bluffs, edition, VERSION);
     grimoire.save();
 
     const signedToken = getJWT(channelId);
@@ -141,11 +140,18 @@ app.get('/broadcaster/:channelId', (req, res) => {
 // JWT auth protected
 app.post('/broadcaster/', (req, res) => {
     // handshake from config to establish or update a broadcasters' secret key
-
+    console.log(req.body);
     try {
         const decodedToken = verifyJWT(req);
 
         const { channelId, secretKey } = req.body;
+
+        if (!channelId) {
+            res.status(StatusCodes.UNAUTHORIZED).send('Missing channelId');
+        }
+        if (!secretKey) {
+            res.send(StatusCodes.UNAUTHORIZED).send('Missing secret key');
+        }
 
         if (!decodedToken || decodedToken.channelId !== channelId) {
             res.status(StatusCodes.UNAUTHORIZED).send(ReasonPhrases.UNAUTHORIZED);
@@ -156,7 +162,8 @@ app.post('/broadcaster/', (req, res) => {
 
         res.status(StatusCodes.CREATED).send();
     } catch (err) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err);
     }
 });
 
