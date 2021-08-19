@@ -1,22 +1,33 @@
 import Database from "better-sqlite3";
-import {migrate as _migrate} from "./migrate.js";
+import { migrate as _migrate, rollback as _rollback } from "./migrate.js";
 
 let db;
 
-function initializeDb() {
+function initializeDb () {
     const dbPath = process.env.DB_PATH;
     console.log("db path: ", process.env.DB_PATH);
-    db ||= new Database(dbPath, {verbose: console.log});
+    db ||= new Database(dbPath, { verbose: console.log });
 }
 
-function migrate() {
+function migrate () {
     _migrate(db);
 }
 
-
-function getDb() {
+function getDb () {
     return db;
 }
 
-export default { initializeDb, migrate, getDb};
-export { initializeDb, migrate, getDb};
+function rollback () {
+    _rollback(db);
+}
+
+// SQLite doesn't know what booleans are
+function boolToInt (bool) {
+    return bool ? 1 : 0;
+}
+function intToBool (int) {
+    return int !== 0;
+}
+
+export default { initializeDb, migrate, rollback, getDb, boolToInt, intToBool };
+export { initializeDb, migrate, rollback, getDb, boolToInt, intToBool };

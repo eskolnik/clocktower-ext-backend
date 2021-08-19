@@ -14,7 +14,9 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "rollback": "node scripts/rollback.js",
+    "migrate":  "node scripts/migrate.js"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

@@ -1,18 +1,28 @@
 import migrations from "./migrations/migrations.js";
 
-function migrate(database) {
+function migrate (database) {
     migrations.forEach(migration => {
-        database.prepare(migration.up).run();
+        try {
+            database.prepare(migration.up).run();
+        } catch (err) {
+            console.log("Error during migration: " + migration.tableName, err);
+            throw err;
+        }
     });
 }
 
-function rollback(database) {
-    let migrationsReversed = [...migrations].reverse();
+function rollback (database) {
+    const migrationsReversed = [...migrations].reverse();
     migrationsReversed.forEach(migration => {
-        database.prepare(migration.down).run();
+        try {
+            database.prepare(migration.down).run();
+        } catch (err) {
+            console.log("Error during rollback: " + migration.tableName, err);
+            throw err;
+        }
     });
 }
 
-export default {migrate, rollback};
+export default { migrate, rollback };
 
-export {migrate, rollback, migrations};
+export { migrate, rollback, migrations };

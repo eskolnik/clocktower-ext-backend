@@ -1,6 +1,8 @@
-import { getDb } from '../db/db.js';
+import { boolToInt, getDb, intToBool } from "../db/db.js";
+import Broadcaster from "./Broadcaster.js";
+import Session from "./Session.js";
 
-const tableName = 'Grimoires';
+const tableName = "Grimoires";
 
 class Grimoire {
     /**
@@ -34,11 +36,11 @@ class Grimoire {
      * @returns {Object}
     */
     get messageContent () {
-        const parsedPlayers = JSON.parse(this.players);
-        const parsedEdition = JSON.parse(this.edition);
+        // const parsedPlayers = JSON.parse(this.players);
+        // const parsedEdition = JSON.parse(this.edition);
         return {
-            players: parsedPlayers,
-            edition: parsedEdition,
+            players: this.players,
+            edition: this.edition,
             lastUpdated: this.timestamp
         };
     }
@@ -52,10 +54,10 @@ class Grimoire {
             id: this.id,
             session: this.session,
             playerId: this.playerId,
-            isHost: this.isHost,
-            players: this.players,
-            bluffs: this.bluffs,
-            edition: this.edition,
+            isHost: boolToInt(this.isHost),
+            players: JSON.stringify(this.players),
+            bluffs: JSON.stringify(this.bluffs),
+            edition: JSON.stringify(this.edition),
             timestamp: this.timestamp,
             version: this.version
         });
@@ -74,46 +76,42 @@ class Grimoire {
             data.id,
             data.session,
             data.playerId,
-            data.isHost,
-            data.players,
-            data.bluffs,
-            data.edition,
-            data.session,
+            intToBool(data.isHost),
+            JSON.parse(data.players),
+            JSON.parse(data.bluffs),
+            JSON.parse(data.edition),
             data.timestamp,
             data.version
         );
     }
 
-    // static loadAllByChannelId(channelId) {
-    //     const statement = getDb().prepare(`
-    //         SELECT * FROM ${Grimoire.tableName}
-    //         WHERE channel_id=?`);
-
-    //     return statement.all(channelId).map(this.fromDbData);
-    // }
-
     static loadMostRecentByChannelId (channelId) {
-        // get secret key from broadcaster
-        // get session from secret key
-        // get most recent grimoire for session and player id
         try {
-            const statement = getDb().prepare(`
+            const grimoireTable = Grimoire.tableName;
+            const sessionTable = Session.tableName;
+            const casterTable = Broadcaster.tableName;
+
+            const db = getDb();
+            const statement = db.prepare(`
             SELECT 
-                ${tableName}.id,
-                ${tableName}.session,
-                ${tableName}.player_id AS playerId,
-                ${tableName}.is_host AS isHost,
-                ${tableName}.players,
-                ${tableName}.bluffs,
-                ${tableName}.edition,
-                ${tableName}.timestamp,
-                ${tableName}.version
-            FROM ${Grimoire.tableName} 
-            WHERE channel_id=?
-            ORDER BY timestamp DESC
+                ${grimoireTable}.id,
+                ${grimoireTable}.session,
+                ${grimoireTable}.player_id AS playerId,
+                ${grimoireTable}.is_host AS isHost,
+                ${grimoireTable}.players,
+                ${grimoireTable}.bluffs,
+                ${grimoireTable}.edition,
+                ${grimoireTable}.timestamp,
+                ${grimoireTable}.version
+            FROM ${grimoireTable} 
+            INNER JOIN ${sessionTable} ON ${sessionTable}.session=${grimoireTable}.session
+            INNER JOIN ${casterTable} ON ${casterTable}.secret_key=${sessionTable}.secret_key
+            WHERE ${casterTable}.channel_id = ? 
+            ORDER BY ${grimoireTable}.timestamp DESC
             LIMIT 1`);
 
             const result = statement.get(channelId);
+
             if (!result) {
                 return null;
             }

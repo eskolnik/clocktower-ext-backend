@@ -1,5 +1,5 @@
-import { getDb } from '../db/db.js';
-const tableName = 'Sessions';
+import { boolToInt, getDb, intToBool } from "../db/db.js";
+const tableName = "Sessions";
 
 class Session {
     constructor (secretKey, session, playerId, isActive, timestamp) {
@@ -20,8 +20,15 @@ class Session {
             INSERT OR REPLACE INTO ${Session.tableName}
             VALUES (:secretKey, :session, :playerId, :isActive, :timestamp)`);
 
-            statement.run();
+            statement.run({
+                secretKey: this.secretKey,
+                session: this.session,
+                playerId: this.playerId,
+                isActive: boolToInt(this.isActive),
+                timestamp: this.timestamp
+            });
         } catch (err) {
+            console.log(this);
             console.log(err);
         }
     }
@@ -37,14 +44,14 @@ class Session {
         FROM ${Session.tableName}
         WHERE secret_key=?`);
 
-        const result = statement.get();
+        const result = statement.get(secretKey);
 
-        return new Session(result.secretKey, result.session, result.playerId, result.isActive, result.timestamp);
+        return new Session(result.secretKey, result.session, result.playerId, intToBool(result.isActive), result.timestamp);
     }
 
-    static fromDbData (data) {
+    // static fromDbData (data) {
 
-    }
+    // }
 
     static create (secretKey, session, playerId, isActive) {
         return new Session(secretKey, session, playerId, isActive, Date.now());

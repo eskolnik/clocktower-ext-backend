@@ -6,7 +6,6 @@ const up = `CREATE TABLE IF NOT EXISTS ${tableName} (
     timestamp   INTEGER NOT NULL
 );`;
 
-
 const down = `DROP TABLE IF EXISTS ${tableName};`;
 
-export default {up, down};
+export default { up, down, tableName };

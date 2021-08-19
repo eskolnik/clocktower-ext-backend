@@ -1,6 +1,6 @@
-import { getDb } from '../db/db.js';
+import { getDb } from "../db/db.js";
 
-const tableName = 'Broadcasters';
+const tableName = "Broadcasters";
 
 class Broadcaster {
     constructor (
