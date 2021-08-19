@@ -1,6 +1,13 @@
 import { boolToInt, getDb, intToBool } from "../db/db.js";
 const tableName = "Sessions";
 
+/**
+ * A Session represents a broadcaster's view of a botc browser tab
+ * It includes information about which player / seat they are
+ * as well as whether they want the overlay to be active or not
+ *
+ * This is independent of whether they are host or player
+ */
 class Session {
     constructor (secretKey, session, playerId, isActive, timestamp) {
         this.secretKey = secretKey;
