@@ -10,9 +10,9 @@ const tableName = "Sessions";
  */
 class Session {
     constructor (secretKey, session, playerId, isActive, timestamp) {
-        this.secretKey = secretKey;
-        this.session = session;
-        this.playerId = playerId;
+        this.secretKey = secretKey.toString();
+        this.session = session.toString();
+        this.playerId = playerId.toString();
         this.isActive = isActive;
         this.timestamp = timestamp;
     }
@@ -35,7 +35,6 @@ class Session {
                 timestamp: this.timestamp
             });
         } catch (err) {
-            console.log(this);
             console.log(err);
         }
     }
@@ -55,10 +54,6 @@ class Session {
 
         return new Session(result.secretKey, result.session, result.playerId, intToBool(result.isActive), result.timestamp);
     }
-
-    // static fromDbData (data) {
-
-    // }
 
     static create (secretKey, session, playerId, isActive) {
         return new Session(secretKey, session, playerId, isActive, Date.now());

@@ -70,12 +70,15 @@ app.get("/grimoire/", (req, res) => {
     const channelId = decodedToken.channel_id;
 
     const grimoire = Grimoire.loadMostRecentByChannelId(channelId);
+    const caster = Broadcaster.loadByChannelId(channelId);
+    const sesh = Session.loadBySecretKey(caster.secretKey);
 
     if (!grimoire) {
         res.status(404).send("Resource Not Found");
     }
     const responseObject = {
-        grimoire: grimoire.messageContent
+        grimoire: grimoire.messageContent,
+        isActive: sesh.isActive
     };
 
     res.send(JSON.stringify(responseObject));
@@ -92,6 +95,7 @@ app.post("/grimoire/:secretKey", (req, res) => {
     const sesh = Session.loadBySecretKey(secretKey);
 
     // get session based on secret key, and ensure session values match
+
     if (sesh.session !== session) {
         res.status(StatusCodes.CONFLICT).send(ReasonPhrases.CONFLICT);
         return;
@@ -105,7 +109,7 @@ app.post("/grimoire/:secretKey", (req, res) => {
 
     const signedToken = getJWT(channelId);
 
-    const message = JSON.stringify({ type: "grimoire", grimoire: grimoire.messageContent });
+    const message = JSON.stringify({ type: "grimoire", grimoire: grimoire.messageContent, isActive: sesh.isActive });
 
     publish(message, signedToken.token, channelId).then(() => {
         res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
