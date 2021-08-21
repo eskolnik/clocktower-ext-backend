@@ -84,9 +84,8 @@ app.get("/grimoire/", (req, res) => {
     res.send(JSON.stringify(responseObject));
 });
 
-// When a grimoire is received, we need to check the session,
-// see if anyone is currently streaming that session,
-// and publish updates to each of them
+// When a grimoire is received, if there is an associated broadcaster,
+// we try to send an update to them
 app.post("/grimoire/:secretKey", (req, res) => {
     const { session, playerId, isHost, players, bluffs, edition } = req.body;
     const { secretKey } = req.params;
@@ -101,22 +100,26 @@ app.post("/grimoire/:secretKey", (req, res) => {
         return;
     }
 
-    const caster = Broadcaster.loadBySecretKey(secretKey);
-    const channelId = caster.channelId;
-
     const grimoire = Grimoire.create(session, playerId, isHost, players, bluffs, edition, VERSION);
     grimoire.save();
+    res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
 
-    const signedToken = getJWT(channelId);
+    // Try to find the broadcaster
+    try {
+        const caster = Broadcaster.loadBySecretKey(secretKey);
 
-    const message = JSON.stringify({ type: "grimoire", grimoire: grimoire.messageContent, isActive: sesh.isActive });
+        const channelId = caster.channelId;
 
-    publish(message, signedToken.token, channelId).then(() => {
-        res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
-    }).catch(error => {
-        console.log("Error publishing message", error);
-        res.status(StatusCodes.UNAUTHORIZED).send(ReasonPhrases.UNAUTHORIZED);
-    });
+        const signedToken = getJWT(channelId);
+
+        const message = JSON.stringify({ type: "grimoire", grimoire: grimoire.messageContent, isActive: sesh.isActive });
+
+        publish(message, signedToken.token, channelId).catch(error => {
+            console.log("Error publishing message", error);
+        });
+    } catch (error) {
+        console.log("No caster found for this grimoire");
+    }
 });
 
 // Get a broadcaster's secret key (for config view only)
