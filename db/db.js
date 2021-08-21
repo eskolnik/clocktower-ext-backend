@@ -5,8 +5,7 @@ let db;
 
 function initializeDb () {
     const dbPath = process.env.DB_PATH;
-    console.log("db path: ", process.env.DB_PATH);
-    db ||= new Database(dbPath, { verbose: console.log });
+    db ||= new Database(dbPath);
 }
 
 function migrate () {

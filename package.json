@@ -10,13 +10,14 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "http-status-codes": "^2.1.4",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0"
   },
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "rollback": "node scripts/rollback.js",
-    "migrate":  "node scripts/migrate.js"
+    "migrate": "node scripts/migrate.js"
   },
   "devDependencies": {
     "eslint": "^7.32.0",

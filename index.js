@@ -11,6 +11,7 @@ import {
     ReasonPhrases,
     StatusCodes
 } from "http-status-codes";
+import morgan from "morgan";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ const app = express();
 const VERSION = 1;
 
 app.use(cors());
+app.use(morgan("tiny"));
 
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -199,5 +201,5 @@ app.post("/session/:secretKey", (req, res) => {
 
 app.listen(port, () => {
     initialize();
-    console.log(`Listening at http://localhost:${port}`);
+    console.log(`Listening on port ${port}`);
 });
