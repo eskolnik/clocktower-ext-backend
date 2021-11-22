@@ -8,6 +8,7 @@ const up = `CREATE TABLE IF NOT EXISTS ${tableName} (
     players     STRING,
     bluffs      STRING,
     edition     STRING,
+    roles       STRING,
     timestamp   INTEGER NOT NULL,
     version     INTEGER NOT NULL
 );`;

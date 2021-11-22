@@ -14,11 +14,12 @@ class Grimoire {
      * @param {string} players
      * @param {string} bluffs
      * @param {string} edition
+     * @param {string} roles
      * @param {number} timestamp
      * @param {number} version
      */
     constructor (
-        id, session, playerId, isHost, players, bluffs, edition, timestamp, version
+        id, session, playerId, isHost, players, bluffs, edition, roles, timestamp, version
     ) {
         this.id = id;
         this.session = session;
@@ -27,6 +28,7 @@ class Grimoire {
         this.players = players;
         this.bluffs = bluffs;
         this.edition = edition;
+        this.roles = roles;
         this.timestamp = timestamp;
         this.version = version;
     }
@@ -41,6 +43,7 @@ class Grimoire {
         return {
             players: this.players,
             edition: this.edition,
+            roles: this.roles,
             lastUpdated: this.timestamp
         };
     }
@@ -48,7 +51,7 @@ class Grimoire {
     save () {
         const statement = getDb().prepare(`
         INSERT OR REPLACE INTO ${Grimoire.tableName}
-        VALUES (:id, :session, :playerId, :isHost, :players, :bluffs, :edition, :timestamp, :version);`);
+        VALUES (:id, :session, :playerId, :isHost, :players, :bluffs, :edition, :roles, :timestamp, :version);`);
 
         const result = statement.run({
             id: this.id,
@@ -58,6 +61,7 @@ class Grimoire {
             players: JSON.stringify(this.players),
             bluffs: JSON.stringify(this.bluffs),
             edition: JSON.stringify(this.edition),
+            roles: JSON.stringify(this.roles),
             timestamp: this.timestamp,
             version: this.version
         });
@@ -80,6 +84,7 @@ class Grimoire {
             JSON.parse(data.players),
             JSON.parse(data.bluffs),
             JSON.parse(data.edition),
+            JSON.parse(data.roles),
             data.timestamp,
             data.version
         );
@@ -101,6 +106,7 @@ class Grimoire {
                 ${grimoireTable}.players,
                 ${grimoireTable}.bluffs,
                 ${grimoireTable}.edition,
+                ${grimoireTable}.roles,
                 ${grimoireTable}.timestamp,
                 ${grimoireTable}.version
             FROM ${grimoireTable} 
@@ -129,15 +135,16 @@ class Grimoire {
     * @param {string} players
     * @param {string} bluffs
     * @param {string} edition
+    * @param {string} roles
     * @param {string} session
     * @param {number} version
     * @returns {Grimoire}
     */
     static create (
-        session, playerId, isHost, players, bluffs, edition, version
+        session, playerId, isHost, players, bluffs, edition, roles, version
     ) {
         return new Grimoire(
-            null, session, playerId, isHost, players, bluffs, edition, Date.now(), version
+            null, session, playerId, isHost, players, bluffs, edition, roles, Date.now(), version
         );
     }
 }

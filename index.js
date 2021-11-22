@@ -94,7 +94,7 @@ app.get("/grimoire/", (req, res) => {
 // When a grimoire is received, if there is an associated broadcaster,
 // we try to send an update to them
 app.post("/grimoire/:secretKey", (req, res) => {
-    const { session, playerId, isHost, players, bluffs, edition } = req.body;
+    const { session, playerId, isHost, players, bluffs, edition, roles } = req.body;
     const { secretKey } = req.params;
     console.log("POST grimoire/" + secretKey, req.body);
 
@@ -107,7 +107,7 @@ app.post("/grimoire/:secretKey", (req, res) => {
         return;
     }
 
-    const grimoire = Grimoire.create(session, playerId, isHost, players, bluffs, edition, VERSION);
+    const grimoire = Grimoire.create(session, playerId, isHost, players, bluffs, edition, roles, VERSION);
     grimoire.save();
     res.status(StatusCodes.CREATED).send(ReasonPhrases.CREATED);
 
