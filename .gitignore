@@ -6,3 +6,6 @@ node_modules/
 
 .vscode/
 yarn-error.log
+
+rsync
+*.pem

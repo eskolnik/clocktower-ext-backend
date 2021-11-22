@@ -12,6 +12,8 @@ import {
     StatusCodes
 } from "http-status-codes";
 import morgan from "morgan";
+import cron from "cron";
+import cleanDb from "./scripts/db_clean.js";
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ const app = express();
 const VERSION = 1;
 
 app.use(cors());
+
+// Logging
 app.use(morgan("tiny"));
 
 app.use(express.json()); // for parsing application/json
@@ -198,6 +202,13 @@ app.post("/session/:secretKey", (req, res) => {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send();
     }
 });
+
+// Clean database every day
+const job = new cron.CronJob("* * * * * *", function () {
+    cleanDb();
+});
+
+job.start();
 
 app.listen(port, () => {
     initialize();

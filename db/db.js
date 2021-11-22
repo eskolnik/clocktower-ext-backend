@@ -4,7 +4,7 @@ import { migrate as _migrate, rollback as _rollback } from "./migrate.js";
 let db;
 
 function initializeDb () {
-    const dbPath = process.env.DB_PATH;
+    const dbPath = process.env.DB_PATH || "./dev.db";
     db ||= new Database(dbPath);
 }
 
