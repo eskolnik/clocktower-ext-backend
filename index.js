@@ -204,7 +204,7 @@ app.post("/session/:secretKey", (req, res) => {
 });
 
 // Clean database every day
-const job = new cron.CronJob("* * * * * *", function () {
+const job = new cron.CronJob("0 0 * * * *", function () {
     cleanDb();
 });
 
