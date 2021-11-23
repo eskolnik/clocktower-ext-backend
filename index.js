@@ -165,7 +165,7 @@ app.post("/broadcaster/", (req, res) => {
             return;
         }
         if (!secretKey) {
-            res.send(StatusCodes.UNAUTHORIZED).send("Missing secret key");
+            res.status(StatusCodes.UNAUTHORIZED).send("Missing secret key");
             return;
         }
         if (!decodedToken || decodedToken.channel_id !== channelId) {

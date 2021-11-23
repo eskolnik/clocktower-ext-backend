@@ -52,7 +52,7 @@ class Session {
 
         const result = statement.get(secretKey);
 
-        return new Session(result.secretKey, result.session, result.playerId, intToBool(result.isActive), result.timestamp);
+        return new Session(secretKey, result.session, result.playerId, intToBool(result.isActive), result.timestamp);
     }
 
     static create (secretKey, session, playerId, isActive) {
